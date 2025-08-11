@@ -96,7 +96,7 @@
 
     <section id="revengeSection">
       <div style="display:flex; align-items:center; margin-bottom: 15px;">
-        <img id="userImage" src="" alt="תמונת משתמש" style="width:50px; height:50px; border-radius:50%; margin-left:10px; object-fit:cover; border:2px solid #b71c1c;">
+        <img id="userImage" src="https://103fm.maariv.co.il/download/highlight/SegmentImgNew_600309_1_54_.jpg" alt="תמונת משתמש" style="width:50px; height:50px; border-radius:50%; margin-left:10px; object-fit:cover; border:2px solid #b71c1c;">
         <div style="font-weight:bold; font-size:1.2rem;">שלום, <span id="userDisplayNameTop"></span></div>
       </div>
 
@@ -112,7 +112,8 @@
       <h3>שלום, <span id="userDisplayName"></span></h3>
       <p>מצב חשבון: <span id="accountStatus">חינמי</span></p>
       <p>מספר נקמות מקסימלי: <span id="maxRevenge"></span></p>
-      <button onclick="upgradePro()">שדרג לפרו</button>
+      <button onclick="upgradePro()" id="upgradeBtn">שדרג לפרו</button>
+      <button onclick="cancelPro()" id="cancelBtn" style="margin-left: 10px; background:#555; display:none;">ביטול הפרו</button>
       <div id="upgradeMsg" class="message" style="color:green;"></div>
     </section>
   </div>
@@ -137,9 +138,10 @@
   const proBadge = document.getElementById('proBadge');
   const upgradeMsg = document.getElementById('upgradeMsg');
   const userDisplayNameTop = document.getElementById('userDisplayNameTop');
-  const userImage = document.getElementById('userImage');
   const loginError = document.getElementById('loginError');
   const loginButton = document.getElementById('loginButton');
+  const upgradeBtn = document.getElementById('upgradeBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
 
   function showSection(id) {
     document.getElementById('revengeSection').style.display = (id === 'revengeSection') ? 'block' : 'none';
@@ -160,7 +162,6 @@
     mainApp.style.display = 'block';
     userDisplayName.textContent = user;
     userDisplayNameTop.textContent = user;
-    userImage.src = 'https://103fm.maariv.co.il/download/highlight/SegmentImgNew_600309_1_54_.jpg';
     loadUserData();
     showSection('revengeSection');
   }
@@ -221,28 +222,53 @@
   }
 
   function updateUI() {
-    const maxAllowed = isPro ? PRO_LIMIT : FREE_LIMIT;
-    revengeStatus.textContent = `נקמות שנוצרו: ${revengeList.length} מתוך ${maxAllowed}`;
     accountStatusEl.textContent = isPro ? 'פרו' : 'חינמי';
-    maxRevengeEl.textContent = maxAllowed;
+    maxRevengeEl.textContent = isPro ? PRO_LIMIT : FREE_LIMIT;
     proBadge.style.display = isPro ? 'inline-block' : 'none';
+    revengeStatus.textContent = `אתה יכול להוסיף עד ${isPro ? PRO_LIMIT : FREE_LIMIT} נקמות. כרגע יש לך ${revengeList.length}`;
+
+    // כפתורי שדרוג וביטול - מציג ביטול רק כשפרו
+    upgradeBtn.style.display = isPro ? 'none' : 'inline-block';
+    cancelBtn.style.display = isPro ? 'inline-block' : 'none';
+
+    upgradeMsg.textContent = '';
   }
 
   function upgradePro() {
     if (isPro) {
+      upgradeMsg.style.color = 'red';
       upgradeMsg.textContent = 'אתה כבר פרו!';
       return;
     }
     isPro = true;
     saveUserData();
     updateUI();
+    upgradeMsg.style.color = 'green';
     upgradeMsg.textContent = 'כל הכבוד! שודרגת לפרו עם מגבלת נקמות מוגדלת.';
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    loginButton.addEventListener('click', login);
+  function cancelPro() {
+    if (!isPro) {
+      upgradeMsg.style.color = 'red';
+      upgradeMsg.textContent = 'אתה לא פרו כרגע.';
+      return;
+    }
+    isPro = false;
+    saveUserData();
+    updateUI();
+    upgradeMsg.style.color = 'red';
+    upgradeMsg.textContent = 'ביטול הפרו כי את קופאית בסופר';
+  }
+
+  loginButton.addEventListener('click', login);
+  document.getElementById('username').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') login();
   });
 </script>
+
+</body>
+</html>
+
 
 </body>
 </html>
