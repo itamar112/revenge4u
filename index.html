@@ -2,21 +2,129 @@
 <html lang="he">
 <head>
 <meta charset="UTF-8" />
-<title>Revenge4U</title>
+<title>Revenge4U - קופה ראשית</title>
 <style>
-  body { font-family: Arial; direction: rtl; background: #f5f5f5; text-align: center; padding: 20px; }
-  .container { background: white; padding: 20px; border-radius: 12px; display: inline-block; max-width: 400px; }
-  input { padding: 10px; margin: 5px; width: 90%; box-sizing: border-box; }
-  button { padding: 10px 20px; margin: 5px; }
-  .hidden { display: none; }
-  ul { padding-inline-start: 0; }
-  li { background: #eee; margin: 6px 0; padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
-  .close-btn { background: #d9534f; color: white; border: none; border-radius: 4px; cursor: pointer; padding: 5px 10px; }
+  body {
+    font-family: Arial, sans-serif;
+    direction: rtl;
+    background: #8b0000;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+  }
+  .container {
+    background: #a00000;
+    padding: 25px 30px;
+    border-radius: 15px;
+    max-width: 420px;
+    margin: 20px auto;
+    box-shadow: 0 0 15px #5a0000;
+  }
+  input {
+    padding: 12px;
+    margin: 8px 0;
+    width: 90%;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+  button {
+    padding: 12px 25px;
+    margin: 10px 5px;
+    font-size: 16px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+  button#registerBtn, button#loginBtn {
+    background: #e60000;
+    color: white;
+  }
+  button#registerBtn:hover, button#loginBtn:hover {
+    background: #ff1a1a;
+  }
+  button#addRevengeBtn, button#proBtn {
+    background: #cc0000;
+    color: white;
+  }
+  button#addRevengeBtn:hover, button#proBtn:hover {
+    background: #ff3333;
+  }
+  button#cancelProBtn {
+    background: #660000;
+    color: white;
+  }
+  button#cancelProBtn:hover {
+    background: #990000;
+  }
+  button#logoutBtn {
+    background: #4d0000;
+    color: #ffa6a6;
+  }
+  button#logoutBtn:hover {
+    background: #730000;
+  }
+  ul {
+    list-style-type: none;
+    padding-inline-start: 0;
+    margin-top: 15px;
+  }
+  li {
+    background: #cc3333;
+    margin: 8px 0;
+    padding: 12px 15px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+  }
+  .close-btn {
+    background: #990000;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 7px 12px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+  }
+  .close-btn:hover {
+    background: #ff4d4d;
+  }
+  #profile-pic {
+    border: 3px solid #ff6666;
+    border-radius: 50%;
+  }
+  #username {
+    margin-right: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+  }
+  #authMessage {
+    color: #ffb3b3;
+    margin-top: 10px;
+    min-height: 20px;
+  }
+  #proStatus {
+    margin-top: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffcccc;
+  }
+  .hidden {
+    display: none !important;
+  }
 </style>
 </head>
 <body>
 
-<h1>Revenge4U</h1>
+<h1>Revenge4U - קופה ראשית</h1>
 
 <div id="auth-section" class="container">
   <h2>התחברות / הרשמה</h2>
@@ -29,9 +137,9 @@
 </div>
 
 <div id="app-section" class="container hidden">
-  <div>
-    <img id="profile-pic" src="https://103fm.maariv.co.il/download/highlight/SegmentImgNew_600309_1_54_.jpg" width="50" height="50" style="border-radius:50%" />
+  <div style="display:flex; align-items:center; justify-content:center; margin-bottom:15px;">
     <span id="username"></span>
+    <img id="profile-pic" src="https://103fm.maariv.co.il/download/highlight/SegmentImgNew_600309_1_54_.jpg" width="60" height="60" />
   </div>
   <h3>הנקמות שלך</h3>
   <ul id="revenge-list"></ul>
@@ -41,13 +149,28 @@
   <button id="proBtn">שדרג ל-PRO</button>
   <button id="cancelProBtn" class="hidden">ביטול הפרו בגלל שאין כסף כי את קופאית בסופר</button>
   <p id="proStatus"></p>
-  <br /><button id="logoutBtn">התנתק</button>
+  <br />
+  <button id="logoutBtn">התנתק</button>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+  import { 
+    getAuth, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    onAuthStateChanged, 
+    signOut 
+  } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+  import { 
+    getFirestore, 
+    doc, 
+    getDoc, 
+    setDoc, 
+    updateDoc, 
+    arrayUnion, 
+    arrayRemove 
+  } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDkY_RwQ4EsrqJGhAXYYka08XfOJ5vVCzM",
@@ -78,7 +201,13 @@
 
   let currentUser = null;
 
+  // הרשמה
   document.getElementById("registerBtn").onclick = () => {
+    authMsg.innerText = "";
+    if (!emailInput.value || !passInput.value) {
+      authMsg.innerText = "אנא מלא אימייל וסיסמה";
+      return;
+    }
     createUserWithEmailAndPassword(auth, emailInput.value, passInput.value)
       .then(() => {
         authMsg.innerText = "נרשמת בהצלחה, התחבר כעת";
@@ -88,13 +217,20 @@
       });
   };
 
+  // התחברות
   document.getElementById("loginBtn").onclick = () => {
+    authMsg.innerText = "";
+    if (!emailInput.value || !passInput.value) {
+      authMsg.innerText = "אנא מלא אימייל וסיסמה";
+      return;
+    }
     signInWithEmailAndPassword(auth, emailInput.value, passInput.value)
       .catch(err => {
         authMsg.innerText = err.message;
       });
   };
 
+  // מעקב אחרי שינויי התחברות
   onAuthStateChanged(auth, user => {
     if (user) {
       currentUser = user;
@@ -106,10 +242,16 @@
       currentUser = null;
       authSection.classList.remove("hidden");
       appSection.classList.add("hidden");
+      authMsg.innerText = "";
+      revengeList.innerHTML = "";
+      proStatus.innerText = "";
+      newRevengeInput.value = "";
     }
   });
 
+  // טעינת נתוני נקמות ופרו
   async function loadData() {
+    if (!currentUser || !currentUser.uid) return;
     const userDocRef = doc(db, "users", currentUser.uid);
     const docSnap = await getDoc(userDocRef);
     if (docSnap.exists()) {
@@ -126,6 +268,7 @@
         cancelProBtn.classList.add("hidden");
       }
     } else {
+      // אם אין משתמש במסד, צור אחד חדש עם נקמות ריקות ופרו=כוזב
       await setDoc(userDocRef, { revenges: [], pro: false });
       revengeList.innerHTML = "";
       proStatus.innerText = "לא ב-PRO";
@@ -134,9 +277,14 @@
     }
   }
 
+  // הוספת נקמה
   document.getElementById("addRevengeBtn").onclick = async () => {
     const txt = newRevengeInput.value.trim();
     if (!txt) return;
+    if (!currentUser || !currentUser.uid) {
+      authMsg.innerText = "אתה חייב להתחבר כדי להוסיף נקמה";
+      return;
+    }
     const userDocRef = doc(db, "users", currentUser.uid);
     await updateDoc(userDocRef, {
       revenges: arrayUnion(txt)
@@ -145,11 +293,11 @@
     newRevengeInput.value = "";
   };
 
+  // הוספת נקמה לרשימה
   function addRevengeToList(txt) {
     const li = document.createElement("li");
     li.innerText = txt;
 
-    // יצירת כפתור סגירה
     const closeBtn = document.createElement("button");
     closeBtn.innerText = "סגור נקמה זו";
     closeBtn.classList.add("close-btn");
@@ -159,7 +307,9 @@
     revengeList.appendChild(li);
   }
 
+  // הסרת נקמה
   async function removeRevenge(txt, liElement) {
+    if (!currentUser || !currentUser.uid) return;
     const userDocRef = doc(db, "users", currentUser.uid);
     await updateDoc(userDocRef, {
       revenges: arrayRemove(txt)
@@ -167,7 +317,9 @@
     revengeList.removeChild(liElement);
   }
 
+  // שדרוג ל-PRO (סימולציה)
   proBtn.onclick = async () => {
+    if (!currentUser || !currentUser.uid) return;
     const userDocRef = doc(db, "users", currentUser.uid);
     await updateDoc(userDocRef, { pro: true });
     proStatus.innerText = "אתה ב-PRO";
@@ -175,7 +327,9 @@
     cancelProBtn.classList.remove("hidden");
   };
 
+  // ביטול פרו עם הודעה מצחיקה
   cancelProBtn.onclick = async () => {
+    if (!currentUser || !currentUser.uid) return;
     const userDocRef = doc(db, "users", currentUser.uid);
     await updateDoc(userDocRef, { pro: false });
     alert("למה להיות אמנון");
@@ -184,8 +338,15 @@
     cancelProBtn.classList.add("hidden");
   };
 
+  // התנתקות
   document.getElementById("logoutBtn").onclick = () => {
-    signOut(auth);
+    if (!auth) return;
+    signOut(auth).then(() => {
+      // אפשר כאן לשים לוג או משהו
+      console.log("התנתקת בהצלחה");
+    }).catch(err => {
+      console.error("שגיאה בהתנתקות:", err);
+    });
   };
 </script>
 
