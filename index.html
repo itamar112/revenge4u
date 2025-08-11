@@ -232,6 +232,8 @@
         return 'הסיסמה חלשה מדי, יש לבחור סיסמה חזקה יותר.';
       case 'auth/too-many-requests':
         return 'יותר מדי ניסיונות, אנא נסה שוב מאוחר יותר.';
+      case 'auth/invalid-credential':
+        return 'אימות הכרטיס האישי או האישורים שנשלחו אינם תקינים.';
       default:
         return 'שגיאה בלתי צפויה: ' + errorCode;
     }
