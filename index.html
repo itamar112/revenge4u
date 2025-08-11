@@ -218,6 +218,25 @@
 
   let currentUser = null;
 
+  function getFriendlyErrorMessage(errorCode) {
+    switch(errorCode) {
+      case 'auth/email-already-in-use':
+        return 'האימייל כבר בשימוש, נסה להתחבר או להשתמש באימייל אחר.';
+      case 'auth/invalid-email':
+        return 'האימייל שהזנת אינו תקין.';
+      case 'auth/user-not-found':
+        return 'משתמש לא נמצא, אנא בדוק את האימייל או הרשם.';
+      case 'auth/wrong-password':
+        return 'סיסמה שגויה, נסה שוב.';
+      case 'auth/weak-password':
+        return 'הסיסמה חלשה מדי, יש לבחור סיסמה חזקה יותר.';
+      case 'auth/too-many-requests':
+        return 'יותר מדי ניסיונות, אנא נסה שוב מאוחר יותר.';
+      default:
+        return 'שגיאה בלתי צפויה: ' + errorCode;
+    }
+  }
+
   // הרשמה
   document.getElementById("registerBtn").onclick = () => {
     authMsg.innerText = "";
@@ -230,7 +249,7 @@
         authMsg.innerText = "נרשמת בהצלחה, התחבר כעת";
       })
       .catch(err => {
-        authMsg.innerText = err.message;
+        authMsg.innerText = getFriendlyErrorMessage(err.code);
       });
   };
 
@@ -243,7 +262,7 @@
     }
     signInWithEmailAndPassword(auth, emailInput.value, passInput.value)
       .catch(err => {
-        authMsg.innerText = err.message;
+        authMsg.innerText = getFriendlyErrorMessage(err.code);
       });
   };
 
@@ -276,11 +295,9 @@
     if (docSnap.exists()) {
       const data = docSnap.data();
 
-      // נקמות פעילות
       revengeList.innerHTML = "";
       (data.revenges || []).forEach(r => addRevengeToList(r));
 
-      // סל מחזור
       if ((data.revengesTrash || []).length > 0) {
         trashSection.classList.remove("hidden");
         trashList.innerHTML = "";
@@ -290,7 +307,6 @@
         trashList.innerHTML = "";
       }
 
-      // פרו
       if (data.pro) {
         proStatus.innerText = "אתה ב-PRO";
         proBtn.classList.add("hidden");
@@ -301,7 +317,6 @@
         cancelProBtn.classList.add("hidden");
       }
     } else {
-      // אם אין משתמש במסד, צור אחד חדש עם נקמות ריקות, סל מחזור ריק ופרו=כוזב
       await setDoc(userDocRef, { revenges: [], revengesTrash: [], pro: false });
       revengeList.innerHTML = "";
       trashList.innerHTML = "";
@@ -312,7 +327,7 @@
     }
   }
 
-  // הוספת נקמה חדשה לרשימה ולאשף Firestore
+  // הוספת נקמה חדשה
   document.getElementById("addRevengeBtn").onclick = async () => {
     const txt = newRevengeInput.value.trim();
     if (!txt) return;
@@ -328,7 +343,6 @@
     newRevengeInput.value = "";
   };
 
-  // הוספת נקמה פעילה לרשימה ב-HTML עם כפתור סגירה (מעבר לסל מחזור)
   function addRevengeToList(txt) {
     const li = document.createElement("li");
     li.innerText = txt;
@@ -342,26 +356,21 @@
     revengeList.appendChild(li);
   }
 
-  // העברת נקמה לסל מחזור (remove מהרשימה הפעילה, להוסיף לסל)
   async function moveToTrash(txt, liElement) {
     if (!currentUser || !currentUser.uid) return;
     const userDocRef = doc(db, "users", currentUser.uid);
 
-    // הסר מהרשימה הפעילה
     await updateDoc(userDocRef, {
       revenges: arrayRemove(txt),
       revengesTrash: arrayUnion(txt)
     });
 
-    // הסר מה-UI הפעיל והוסף לסל מחזור
     revengeList.removeChild(liElement);
     addTrashToList(txt);
 
-    // הצג סל מחזור אם מוסתר
     trashSection.classList.remove("hidden");
   }
 
-  // הוספת נקמה לסל המחזור עם כפתורי מחזור ומחיקה לצמיתות
   function addTrashToList(txt) {
     const li = document.createElement("li");
     li.innerText = txt;
@@ -381,7 +390,6 @@
     trashList.appendChild(li);
   }
 
-  // מחזור נקמה מהסל חזרה לנקמות פעילות
   async function recycleFromTrash(txt, liElement) {
     if (!currentUser || !currentUser.uid) return;
     const userDocRef = doc(db, "users", currentUser.uid);
@@ -394,13 +402,11 @@
     trashList.removeChild(liElement);
     addRevengeToList(txt);
 
-    // אם סל מחזור ריק, הסתר אותו
     if (trashList.children.length === 0) {
       trashSection.classList.add("hidden");
     }
   }
 
-  // מחיקה לצמיתות מהסל מחזור
   async function deleteFromTrash(txt, liElement) {
     if (!currentUser || !currentUser.uid) return;
     const userDocRef = doc(db, "users", currentUser.uid);
@@ -411,13 +417,11 @@
 
     trashList.removeChild(liElement);
 
-    // אם סל מחזור ריק, הסתר אותו
     if (trashList.children.length === 0) {
       trashSection.classList.add("hidden");
     }
   }
 
-  // שדרוג ל-PRO (סימולציה)
   proBtn.onclick = async () => {
     if (!currentUser || !currentUser.uid) return;
     const userDocRef = doc(db, "users", currentUser.uid);
@@ -427,7 +431,6 @@
     cancelProBtn.classList.remove("hidden");
   };
 
-  // ביטול פרו עם הודעה מצחיקה
   cancelProBtn.onclick = async () => {
     if (!currentUser || !currentUser.uid) return;
     const userDocRef = doc(db, "users", currentUser.uid);
@@ -438,7 +441,6 @@
     cancelProBtn.classList.add("hidden");
   };
 
-  // התנתקות
   document.getElementById("logoutBtn").onclick = () => {
     if (!auth) return;
     signOut(auth).then(() => {
