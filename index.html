@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Revenge4U Pro - אבטיפוס משודרג</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
+  body {
+    font-family: 'Varela Round', sans-serif;
+    margin: 0; background: #f4f4f4; color: #222;
+    display: flex; flex-direction: column; min-height: 100vh;
+  }
+  header {
+    background: #b71c1c; color: white; padding: 15px 20px;
+    font-size: 1.6rem; font-weight: bold; text-align: center;
+  }
+  main {
+    flex-grow: 1; padding: 20px; max-width: 600px; margin: auto;
+    background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
+  }
+  input, textarea, button {
+    width: 100%; font-size: 1rem; margin: 8px 0; padding: 10px;
+    box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc;
+  }
+  textarea {
+    resize: vertical; min-height: 80px;
+  }
+  button {
+    background: #b71c1c; border: none; color: white; cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background: #d32f2f;
+  }
+  ul {
+    list-style: none; padding: 0; margin: 0;
+  }
+  li {
+    background: #fff5f5; border: 1px solid #b71c1c; margin-bottom: 10px;
+    padding: 15px; border-radius: 6px; position: relative;
+  }
+  li .remove-btn {
+    position: absolute; top: 10px; left: 10px;
+    background: #d32f2f; border: none; color: white;
+    border-radius: 50%; width: 24px; height: 24px; cursor: pointer;
+    font-weight: bold; font-size: 18px; line-height: 18px;
+    text-align: center; padding: 0;
+  }
+  nav {
+    display: flex; justify-content: center; gap: 20px; margin-bottom: 20px;
+  }
+  nav button {
+    width: auto; padding: 8px 20px; font-weight: 600;
+    border-radius: 20px;
+  }
+  .status-bar {
+    text-align: center; margin-bottom: 15px; font-size: 0.9rem;
+    color: #555;
+  }
+  .pro-badge {
+    background: gold; color: #b71c1c; padding: 4px 8px;
+    font-weight: bold; border-radius: 5px; margin-left: 10px;
+  }
+  .login-form {
+    max-width: 320px; margin: 40px auto;
+  }
+  .login-form input {
+    margin-bottom: 15px;
+  }
+  .message {
+    color: red; margin: 10px 0; font-weight: 600;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header>Revenge4U Pro <span id="proBadge" class="pro-badge" style="display:none;">פרו</span></header>
+
+<main id="app">
+
+  <div id="loginScreen" class="login-form">
+    <h2>כניסה</h2>
+    <input type="text" id="username" placeholder="הכנס שם משתמש" />
+    <button id="loginButton">התחבר</button>
+    <div id="loginError" class="message"></div>
+  </div>
+
+  <div id="mainApp" style="display:none;">
+    <nav>
+      <button onclick="showSection('revengeSection')">נקמות</button>
+      <button onclick="showSection('profileSection')">פרופיל</button>
+    </nav>
+
+    <section id="revengeSection">
+      <div style="display:flex; align-items:center; margin-bottom: 15px;">
+        <img id="userImage" src="" alt="תמונת משתמש" style="width:50px; height:50px; border-radius:50%; margin-left:10px; object-fit:cover; border:2px solid #b71c1c;">
+        <div style="font-weight:bold; font-size:1.2rem;">שלום, <span id="userDisplayNameTop"></span></div>
+      </div>
+
+      <div class="status-bar" id="revengeStatus"></div>
+      <input type="text" id="targetName" placeholder="מי המטרה?" maxlength="30"/>
+      <textarea id="revengeText" placeholder="תכנן את הנקמה שלך כאן..." maxlength="150"></textarea>
+      <button onclick="addRevenge()">הוסף נקמה</button>
+
+      <ul id="revengeList"></ul>
+    </section>
+
+    <section id="profileSection" style="display:none;">
+      <h3>שלום, <span id="userDisplayName"></span></h3>
+      <p>מצב חשבון: <span id="accountStatus">חינמי</span></p>
+      <p>מספר נקמות מקסימלי: <span id="maxRevenge"></span></p>
+      <button onclick="upgradePro()">שדרג לפרו</button>
+      <div id="upgradeMsg" class="message" style="color:green;"></div>
+    </section>
+  </div>
+
+</main>
+
+<script>
+  const FREE_LIMIT = 5;
+  const PRO_LIMIT = 50;
+
+  let user = null;
+  let isPro = false;
+  let revengeList = [];
+
+  const loginScreen = document.getElementById('loginScreen');
+  const mainApp = document.getElementById('mainApp');
+  const revengeListEl = document.getElementById('revengeList');
+  const revengeStatus = document.getElementById('revengeStatus');
+  const accountStatusEl = document.getElementById('accountStatus');
+  const maxRevengeEl = document.getElementById('maxRevenge');
+  const userDisplayName = document.getElementById('userDisplayName');
+  const proBadge = document.getElementById('proBadge');
+  const upgradeMsg = document.getElementById('upgradeMsg');
+  const userDisplayNameTop = document.getElementById('userDisplayNameTop');
+  const userImage = document.getElementById('userImage');
+  const loginError = document.getElementById('loginError');
+  const loginButton = document.getElementById('loginButton');
+
+  function showSection(id) {
+    document.getElementById('revengeSection').style.display = (id === 'revengeSection') ? 'block' : 'none';
+    document.getElementById('profileSection').style.display = (id === 'profileSection') ? 'block' : 'none';
+    upgradeMsg.textContent = '';
+  }
+
+  function login() {
+    const usernameInput = document.getElementById('username');
+    const username = usernameInput.value.trim();
+    if (username !== 'כוכבההמלכה10') {
+      loginError.textContent = 'שם משתמש לא חוקי. כניסה נדחתה.';
+      return;
+    }
+    user = username;
+    loginError.textContent = '';
+    loginScreen.style.display = 'none';
+    mainApp.style.display = 'block';
+    userDisplayName.textContent = user;
+    userDisplayNameTop.textContent = user;
+    userImage.src = 'https://103fm.maariv.co.il/download/highlight/SegmentImgNew_600309_1_54_.jpg';
+    loadUserData();
+    showSection('revengeSection');
+  }
+
+  function loadUserData() {
+    const saved = localStorage.getItem('revenge4uUser_' + user);
+    if (saved) {
+      const data = JSON.parse(saved);
+      revengeList = data.revengeList || [];
+      isPro = data.isPro || false;
+    } else {
+      revengeList = [];
+      isPro = false;
+    }
+    updateUI();
+    renderRevengeList();
+  }
+
+  function saveUserData() {
+    const data = { revengeList, isPro };
+    localStorage.setItem('revenge4uUser_' + user, JSON.stringify(data));
+  }
+
+  function addRevenge() {
+    const name = document.getElementById('targetName').value.trim();
+    const text = document.getElementById('revengeText').value.trim();
+
+    const maxAllowed = isPro ? PRO_LIMIT : FREE_LIMIT;
+    if (revengeList.length >= maxAllowed) {
+      alert(`הגעת למגבלת הנקמות שלך (${maxAllowed}). שדרג לפרו כדי לקבל יותר!`);
+      return;
+    }
+    if (!name || !text) {
+      alert('יש למלא את כל השדות');
+      return;
+    }
+    revengeList.push({ name, text });
+    saveUserData();
+    renderRevengeList();
+    document.getElementById('targetName').value = '';
+    document.getElementById('revengeText').value = '';
+  }
+
+  function renderRevengeList() {
+    revengeListEl.innerHTML = '';
+    revengeList.forEach((item, i) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<b>ל- ${item.name}:</b> ${item.text} <button class="remove-btn" onclick="removeRevenge(${i})">×</button>`;
+      revengeListEl.appendChild(li);
+    });
+    updateUI();
+  }
+
+  function removeRevenge(index) {
+    revengeList.splice(index, 1);
+    saveUserData();
+    renderRevengeList();
+  }
+
+  function updateUI() {
+    const maxAllowed = isPro ? PRO_LIMIT : FREE_LIMIT;
+    revengeStatus.textContent = `נקמות שנוצרו: ${revengeList.length} מתוך ${maxAllowed}`;
+    accountStatusEl.textContent = isPro ? 'פרו' : 'חינמי';
+    maxRevengeEl.textContent = maxAllowed;
+    proBadge.style.display = isPro ? 'inline-block' : 'none';
+  }
+
+  function upgradePro() {
+    if (isPro) {
+      upgradeMsg.textContent = 'אתה כבר פרו!';
+      return;
+    }
+    isPro = true;
+    saveUserData();
+    updateUI();
+    upgradeMsg.textContent = 'כל הכבוד! שודרגת לפרו עם מגבלת נקמות מוגדלת.';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loginButton.addEventListener('click', login);
+  });
+</script>
+
+</body>
+</html>
+
