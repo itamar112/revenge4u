@@ -1,128 +1,178 @@
 <!DOCTYPE html>
 <html lang="he">
 <head>
-  <meta charset="UTF-8">
-  <title>Revenge4U</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: Arial, sans-serif; direction: rtl; background: #f5f5f5; text-align: center; }
-    .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    .hidden { display: none; }
-    img.profile { width: 80px; height: 80px; border-radius: 50%; margin: 10px; }
-    button { margin: 5px; padding: 10px; cursor: pointer; }
-    input { margin: 5px; padding: 8px; width: calc(100% - 20px); }
-    h1 { color: #333; }
-  </style>
+<meta charset="UTF-8" />
+<title>Revenge4U</title>
+<style>
+  body { font-family: Arial; direction: rtl; background: #f5f5f5; text-align: center; padding: 20px; }
+  .container { background: white; padding: 20px; border-radius: 12px; display: inline-block; }
+  input { padding: 10px; margin: 5px; width: 200px; }
+  button { padding: 10px 20px; margin: 5px; }
+  .hidden { display: none; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>Revenge4U</h1>
 
-    <!-- Login/Register -->
-    <div id="auth-section">
-      <h2>התחברות</h2>
-      <input type="email" id="email" placeholder="אימייל"><br>
-      <input type="password" id="password" placeholder="סיסמה"><br>
-      <button onclick="login()">התחבר</button>
-      <button onclick="register()">הרשמה</button>
-      <p id="auth-message"></p>
-    </div>
+<h1>Revenge4U</h1>
 
-    <!-- App -->
-    <div id="app-section" class="hidden">
-      <img class="profile" src="https://103fm.maariv.co.il/download/highlight/SegmentImgNew_600309_1_54_.jpg" alt="פרופיל">
-      <h2 id="username"></h2>
-      <h3>ארגון הנקמות</h3>
+<div id="auth-section" class="container">
+  <h2>התחברות / הרשמה</h2>
+  <input type="email" id="email" placeholder="אימייל" />
+  <input type="password" id="password" placeholder="סיסמה" />
+  <br />
+  <button id="registerBtn">הרשמה</button>
+  <button id="loginBtn">התחברות</button>
+  <p id="authMessage"></p>
+</div>
 
-      <div>
-        <button onclick="activatePro()">שדרג ל-PRO</button>
-        <button id="cancelProBtn" class="hidden" onclick="cancelPro()">ביטול הפרו בגלל שאין כסף כי את קופאית בסופר</button>
-      </div>
-
-      <p id="pro-status">מצב PRO: כבוי</p>
-      <button onclick="logout()">התנתק</button>
-    </div>
+<div id="app-section" class="container hidden">
+  <div>
+    <img id="profile-pic" src="https://103fm.maariv.co.il/download/highlight/SegmentImgNew_600309_1_54_.jpg" width="50" height="50" style="border-radius:50%" />
+    <span id="username"></span>
   </div>
+  <h3>הנקמות שלך</h3>
+  <ul id="revenge-list"></ul>
+  <input type="text" id="new-revenge" placeholder="הכנס נקמה חדשה" />
+  <button id="addRevengeBtn">הוסף נקמה</button>
+  <br /><br />
+  <button id="proBtn">שדרג ל-PRO</button>
+  <button id="cancelProBtn" class="hidden">ביטול הפרו בגלל שאין כסף כי את קופאית בסופר</button>
+  <p id="proStatus"></p>
+  <br /><button id="logoutBtn">התנתק</button>
+</div>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js"></script>
+<script type="module">
+  // גרסה מודרנית של Firebase עם CDN וייבוא מודולים
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDkY_RwQ4EsrqJGhAXYYka08XfOJ5vVCzM",
-      authDomain: "revenge4u-1.firebaseapp.com",
-      projectId: "revenge4u-1",
-      storageBucket: "revenge4u-1.appspot.com",
-      messagingSenderId: "886478866355",
-      appId: "1:886478866355:web:8a82e399a38b65c8f3edc6",
-      measurementId: "G-HLRC0W31DG"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyDkY_RwQ4EsrqJGhAXYYka08XfOJ5vVCzM",
+    authDomain: "revenge4u-1.firebaseapp.com",
+    projectId: "revenge4u-1",
+    storageBucket: "revenge4u-1.appspot.com",
+    messagingSenderId: "886478866355",
+    appId: "1:886478866355:web:8a82e399a38b65c8f3edc6",
+    measurementId: "G-HLRC0W31DG"
+  };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    // Register
-    function register() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(() => document.getElementById('auth-message').innerText = "נרשמת בהצלחה, אפשר להתחבר!")
-        .catch(err => document.getElementById('auth-message').innerText = err.message);
+  const emailInput = document.getElementById("email");
+  const passInput = document.getElementById("password");
+  const authMsg = document.getElementById("authMessage");
+
+  const authSection = document.getElementById("auth-section");
+  const appSection = document.getElementById("app-section");
+  const usernameDisplay = document.getElementById("username");
+  const revengeList = document.getElementById("revenge-list");
+  const newRevengeInput = document.getElementById("new-revenge");
+  const proBtn = document.getElementById("proBtn");
+  const cancelProBtn = document.getElementById("cancelProBtn");
+  const proStatus = document.getElementById("proStatus");
+
+  let currentUser = null;
+
+  document.getElementById("registerBtn").onclick = () => {
+    createUserWithEmailAndPassword(auth, emailInput.value, passInput.value)
+      .then(() => {
+        authMsg.innerText = "נרשמת בהצלחה, התחבר כעת";
+      })
+      .catch(err => {
+        authMsg.innerText = err.message;
+      });
+  };
+
+  document.getElementById("loginBtn").onclick = () => {
+    signInWithEmailAndPassword(auth, emailInput.value, passInput.value)
+      .catch(err => {
+        authMsg.innerText = err.message;
+      });
+  };
+
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      currentUser = user;
+      usernameDisplay.innerText = user.email;
+      loadData();
+      authSection.classList.add("hidden");
+      appSection.classList.remove("hidden");
+    } else {
+      currentUser = null;
+      authSection.classList.remove("hidden");
+      appSection.classList.add("hidden");
     }
+  });
 
-    // Login
-    function login() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      auth.signInWithEmailAndPassword(email, password)
-        .catch(err => document.getElementById('auth-message').innerText = err.message);
-    }
-
-    // Logout
-    function logout() {
-      auth.signOut();
-    }
-
-    // Activate PRO
-    function activatePro() {
-      const uid = auth.currentUser.uid;
-      db.collection('users').doc(uid).set({ pro: true }, { merge: true });
-    }
-
-    // Cancel PRO
-    function cancelPro() {
-      alert("למה להיות אמנון");
-      const uid = auth.currentUser.uid;
-      db.collection('users').doc(uid).set({ pro: false }, { merge: true });
-    }
-
-    // Auth listener
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        document.getElementById('auth-section').classList.add('hidden');
-        document.getElementById('app-section').classList.remove('hidden');
-        document.getElementById('username').innerText = user.email;
-
-        // Get PRO status
-        db.collection('users').doc(user.uid).get().then(doc => {
-          if (doc.exists && doc.data().pro) {
-            document.getElementById('pro-status').innerText = "מצב PRO: פעיל";
-            document.getElementById('cancelProBtn').classList.remove('hidden');
-          } else {
-            document.getElementById('pro-status').innerText = "מצב PRO: כבוי";
-            document.getElementById('cancelProBtn').classList.add('hidden');
-          }
-        });
+  async function loadData() {
+    const userDocRef = doc(db, "users", currentUser.uid);
+    const docSnap = await getDoc(userDocRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      revengeList.innerHTML = "";
+      (data.revenges || []).forEach(r => addRevengeToList(r));
+      if (data.pro) {
+        proStatus.innerText = "אתה ב-PRO";
+        proBtn.classList.add("hidden");
+        cancelProBtn.classList.remove("hidden");
       } else {
-        document.getElementById('auth-section').classList.remove('hidden');
-        document.getElementById('app-section').classList.add('hidden');
+        proStatus.innerText = "לא ב-PRO";
+        proBtn.classList.remove("hidden");
+        cancelProBtn.classList.add("hidden");
       }
+    } else {
+      await setDoc(userDocRef, { revenges: [], pro: false });
+      revengeList.innerHTML = "";
+      proStatus.innerText = "לא ב-PRO";
+      proBtn.classList.remove("hidden");
+      cancelProBtn.classList.add("hidden");
+    }
+  }
+
+  document.getElementById("addRevengeBtn").onclick = async () => {
+    const txt = newRevengeInput.value.trim();
+    if (!txt) return;
+    const userDocRef = doc(db, "users", currentUser.uid);
+    await updateDoc(userDocRef, {
+      revenges: arrayUnion(txt)
     });
-  </script>
+    addRevengeToList(txt);
+    newRevengeInput.value = "";
+  };
+
+  function addRevengeToList(txt) {
+    const li = document.createElement("li");
+    li.innerText = txt;
+    revengeList.appendChild(li);
+  }
+
+  proBtn.onclick = async () => {
+    const userDocRef = doc(db, "users", currentUser.uid);
+    await updateDoc(userDocRef, { pro: true });
+    proStatus.innerText = "אתה ב-PRO";
+    proBtn.classList.add("hidden");
+    cancelProBtn.classList.remove("hidden");
+  };
+
+  cancelProBtn.onclick = async () => {
+    const userDocRef = doc(db, "users", currentUser.uid);
+    await updateDoc(userDocRef, { pro: false });
+    alert("למה להיות אמנון");
+    proStatus.innerText = "לא ב-PRO";
+    proBtn.classList.remove("hidden");
+    cancelProBtn.classList.add("hidden");
+  };
+
+  document.getElementById("logoutBtn").onclick = () => {
+    signOut(auth);
+  };
+</script>
+
 </body>
 </html>
+
 
 
