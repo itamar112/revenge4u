@@ -2,7 +2,7 @@
 <html lang="he">
 <head>
 <meta charset="UTF-8" />
-<title>Revenge4U</title>
+<title>Revenge4U - עם סל מחזור</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -83,7 +83,7 @@
     align-items: center;
     font-weight: bold;
   }
-  .close-btn {
+  .close-btn, .recycle-btn, .delete-btn {
     background: #990000;
     color: white;
     border: none;
@@ -92,8 +92,9 @@
     padding: 7px 12px;
     font-size: 14px;
     transition: background-color 0.3s ease;
+    margin-left: 8px;
   }
-  .close-btn:hover {
+  .close-btn:hover, .recycle-btn:hover, .delete-btn:hover {
     background: #ff4d4d;
   }
   #profile-pic {
@@ -117,6 +118,13 @@
     font-weight: bold;
     color: #ffcccc;
   }
+  #trash-section {
+    margin-top: 20px;
+    text-align: center;
+  }
+  #trash-section h3 {
+    margin-bottom: 10px;
+  }
   .hidden {
     display: none !important;
   }
@@ -124,7 +132,7 @@
 </head>
 <body>
 
-<h1>Revenge4U - קופה ראשית</h1>
+<h1>Revenge4U - קופה ראשית עם סל מחזור</h1>
 
 <div id="auth-section" class="container">
   <h2>התחברות / הרשמה</h2>
@@ -141,11 +149,18 @@
     <span id="username"></span>
     <img id="profile-pic" src="https://103fm.maariv.co.il/download/highlight/SegmentImgNew_600309_1_54_.jpg" width="60" height="60" />
   </div>
+
   <h3>הנקמות שלך</h3>
   <ul id="revenge-list"></ul>
   <input type="text" id="new-revenge" placeholder="הכנס נקמה חדשה" />
   <button id="addRevengeBtn">הוסף נקמה</button>
-  <br /><br />
+
+  <div id="trash-section" class="hidden">
+    <h3>סל מחזור - נקמות שנסגרו</h3>
+    <ul id="trash-list"></ul>
+  </div>
+
+  <br />
   <button id="proBtn">שדרג ל-PRO</button>
   <button id="cancelProBtn" class="hidden">ביטול הפרו בגלל שאין כסף כי את קופאית בסופר</button>
   <p id="proStatus"></p>
@@ -198,6 +213,8 @@
   const proBtn = document.getElementById("proBtn");
   const cancelProBtn = document.getElementById("cancelProBtn");
   const proStatus = document.getElementById("proStatus");
+  const trashSection = document.getElementById("trash-section");
+  const trashList = document.getElementById("trash-list");
 
   let currentUser = null;
 
@@ -244,20 +261,36 @@
       appSection.classList.add("hidden");
       authMsg.innerText = "";
       revengeList.innerHTML = "";
+      trashList.innerHTML = "";
       proStatus.innerText = "";
       newRevengeInput.value = "";
+      trashSection.classList.add("hidden");
     }
   });
 
-  // טעינת נתוני נקמות ופרו
+  // טעינת נתוני נקמות ופרו וסל מחזור
   async function loadData() {
     if (!currentUser || !currentUser.uid) return;
     const userDocRef = doc(db, "users", currentUser.uid);
     const docSnap = await getDoc(userDocRef);
     if (docSnap.exists()) {
       const data = docSnap.data();
+
+      // נקמות פעילות
       revengeList.innerHTML = "";
       (data.revenges || []).forEach(r => addRevengeToList(r));
+
+      // סל מחזור
+      if ((data.revengesTrash || []).length > 0) {
+        trashSection.classList.remove("hidden");
+        trashList.innerHTML = "";
+        (data.revengesTrash || []).forEach(r => addTrashToList(r));
+      } else {
+        trashSection.classList.add("hidden");
+        trashList.innerHTML = "";
+      }
+
+      // פרו
       if (data.pro) {
         proStatus.innerText = "אתה ב-PRO";
         proBtn.classList.add("hidden");
@@ -268,16 +301,18 @@
         cancelProBtn.classList.add("hidden");
       }
     } else {
-      // אם אין משתמש במסד, צור אחד חדש עם נקמות ריקות ופרו=כוזב
-      await setDoc(userDocRef, { revenges: [], pro: false });
+      // אם אין משתמש במסד, צור אחד חדש עם נקמות ריקות, סל מחזור ריק ופרו=כוזב
+      await setDoc(userDocRef, { revenges: [], revengesTrash: [], pro: false });
       revengeList.innerHTML = "";
+      trashList.innerHTML = "";
+      trashSection.classList.add("hidden");
       proStatus.innerText = "לא ב-PRO";
       proBtn.classList.remove("hidden");
       cancelProBtn.classList.add("hidden");
     }
   }
 
-  // הוספת נקמה
+  // הוספת נקמה חדשה לרשימה ולאשף Firestore
   document.getElementById("addRevengeBtn").onclick = async () => {
     const txt = newRevengeInput.value.trim();
     if (!txt) return;
@@ -293,7 +328,7 @@
     newRevengeInput.value = "";
   };
 
-  // הוספת נקמה לרשימה
+  // הוספת נקמה פעילה לרשימה ב-HTML עם כפתור סגירה (מעבר לסל מחזור)
   function addRevengeToList(txt) {
     const li = document.createElement("li");
     li.innerText = txt;
@@ -301,20 +336,85 @@
     const closeBtn = document.createElement("button");
     closeBtn.innerText = "סגור נקמה זו";
     closeBtn.classList.add("close-btn");
-    closeBtn.onclick = () => removeRevenge(txt, li);
+    closeBtn.onclick = () => moveToTrash(txt, li);
 
     li.appendChild(closeBtn);
     revengeList.appendChild(li);
   }
 
-  // הסרת נקמה
-  async function removeRevenge(txt, liElement) {
+  // העברת נקמה לסל מחזור (remove מהרשימה הפעילה, להוסיף לסל)
+  async function moveToTrash(txt, liElement) {
     if (!currentUser || !currentUser.uid) return;
     const userDocRef = doc(db, "users", currentUser.uid);
+
+    // הסר מהרשימה הפעילה
     await updateDoc(userDocRef, {
-      revenges: arrayRemove(txt)
+      revenges: arrayRemove(txt),
+      revengesTrash: arrayUnion(txt)
     });
+
+    // הסר מה-UI הפעיל והוסף לסל מחזור
     revengeList.removeChild(liElement);
+    addTrashToList(txt);
+
+    // הצג סל מחזור אם מוסתר
+    trashSection.classList.remove("hidden");
+  }
+
+  // הוספת נקמה לסל המחזור עם כפתורי מחזור ומחיקה לצמיתות
+  function addTrashToList(txt) {
+    const li = document.createElement("li");
+    li.innerText = txt;
+
+    const recycleBtn = document.createElement("button");
+    recycleBtn.innerText = "מחזור";
+    recycleBtn.classList.add("recycle-btn");
+    recycleBtn.onclick = () => recycleFromTrash(txt, li);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.innerText = "מחק לצמיתות";
+    deleteBtn.classList.add("delete-btn");
+    deleteBtn.onclick = () => deleteFromTrash(txt, li);
+
+    li.appendChild(deleteBtn);
+    li.appendChild(recycleBtn);
+    trashList.appendChild(li);
+  }
+
+  // מחזור נקמה מהסל חזרה לנקמות פעילות
+  async function recycleFromTrash(txt, liElement) {
+    if (!currentUser || !currentUser.uid) return;
+    const userDocRef = doc(db, "users", currentUser.uid);
+
+    await updateDoc(userDocRef, {
+      revengesTrash: arrayRemove(txt),
+      revenges: arrayUnion(txt)
+    });
+
+    trashList.removeChild(liElement);
+    addRevengeToList(txt);
+
+    // אם סל מחזור ריק, הסתר אותו
+    if (trashList.children.length === 0) {
+      trashSection.classList.add("hidden");
+    }
+  }
+
+  // מחיקה לצמיתות מהסל מחזור
+  async function deleteFromTrash(txt, liElement) {
+    if (!currentUser || !currentUser.uid) return;
+    const userDocRef = doc(db, "users", currentUser.uid);
+
+    await updateDoc(userDocRef, {
+      revengesTrash: arrayRemove(txt)
+    });
+
+    trashList.removeChild(liElement);
+
+    // אם סל מחזור ריק, הסתר אותו
+    if (trashList.children.length === 0) {
+      trashSection.classList.add("hidden");
+    }
   }
 
   // שדרוג ל-PRO (סימולציה)
@@ -342,7 +442,6 @@
   document.getElementById("logoutBtn").onclick = () => {
     if (!auth) return;
     signOut(auth).then(() => {
-      // אפשר כאן לשים לוג או משהו
       console.log("התנתקת בהצלחה");
     }).catch(err => {
       console.error("שגיאה בהתנתקות:", err);
