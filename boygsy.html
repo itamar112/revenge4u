@@ -1,0 +1,1227 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>שברים ד-ה</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#111a33;
+      --card2:#0f1730;
+      --text:#e8eeff;
+      --muted:#a8b3d6;
+      --accent:#7c5cff;
+      --accent2:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --good:#22c55e;
+      --line:rgba(255,255,255,.12);
+      --shadow: 0 18px 45px rgba(0,0,0,.35);
+      --radius:18px;
+      --ring: 0 0 0 3px rgba(124,92,255,.25);
+      font-family: system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      color:var(--text);
+      background:
+        radial-gradient(1000px 800px at 90% 10%, rgba(124,92,255,.18), transparent 55%),
+        radial-gradient(900px 700px at 10% 30%, rgba(34,197,94,.14), transparent 55%),
+        linear-gradient(180deg, #070a14, var(--bg));
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    header{
+      position:sticky;
+      top:0;
+      z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(7,10,20,.55);
+      border-bottom: 1px solid var(--line);
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:18px 16px}
+    .top{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .brand{
+      display:flex;align-items:center;gap:10px;
+    }
+    .logo{
+      width:38px;height:38px;border-radius:12px;
+      background: conic-gradient(from 180deg, var(--accent), #4dd6ff, var(--accent2), var(--accent));
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .logo::after{
+      content:"";
+      position:absolute; inset:-40%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 40%);
+      transform: rotate(18deg);
+      animation: shimmer 3.2s ease-in-out infinite;
+    }
+    @keyframes shimmer{
+      0%{transform:translateX(-12%) rotate(18deg)}
+      50%{transform:translateX(12%) rotate(18deg)}
+      100%{transform:translateX(-12%) rotate(18deg)}
+    }
+
+    h1{margin:0;font-size:18px}
+    .sub{color:var(--muted);font-size:12px;margin-top:2px}
+    nav{
+      display:flex; gap:8px; flex-wrap:wrap;
+    }
+    .tab{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:999px;
+      cursor:pointer;
+      transition: transform .15s ease, background .15s ease, border .15s ease;
+      user-select:none;
+      font-size:13px;
+    }
+    .tab:hover{transform: translateY(-1px); background: rgba(255,255,255,.06)}
+    .tab.active{border-color: rgba(124,92,255,.55); background: rgba(124,92,255,.18)}
+    .right{
+      display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    }
+    .pill{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      border-radius:999px;
+      padding:10px 12px;
+      display:flex;align-items:center;gap:10px;
+      font-size:13px;
+      min-width: 220px;
+    }
+    .bar{
+      flex:1;
+      height:10px;
+      background: rgba(255,255,255,.08);
+      border-radius:999px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius:999px;
+      transition: width .25s ease;
+    }
+
+    main{max-width:1100px;margin:0 auto;padding:18px 16px 40px}
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:14px;
+    }
+    @media (max-width: 920px){
+      .grid{grid-template-columns:1fr}
+      .pill{min-width: 0; width: 100%}
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .cardHeader{
+      padding:14px 14px 10px;
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+    }
+    .cardTitle{
+      margin:0;
+      font-size:16px;
+    }
+    .cardHint{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:6px;
+      line-height:1.4;
+    }
+    .cardBody{padding:0 14px 14px}
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    label{font-size:12px;color:var(--muted)}
+    input[type="number"], select{
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:12px;
+      color:var(--text);
+      padding:10px 10px;
+      width: 110px;
+      outline:none;
+    }
+    input[type="number"]:focus, select:focus{box-shadow: var(--ring); border-color: rgba(124,92,255,.6)}
+    input[type="range"]{width: 260px}
+    button{
+      background: rgba(124,92,255,.18);
+      border:1px solid rgba(124,92,255,.45);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      cursor:pointer;
+      transition: transform .15s ease, background .15s ease, border .15s ease;
+      font-size:13px;
+    }
+    button:hover{transform: translateY(-1px); background: rgba(124,92,255,.24)}
+    button.secondary{
+      background: rgba(255,255,255,.04);
+      border-color: rgba(255,255,255,.12);
+    }
+    button.good{
+      background: rgba(34,197,94,.16);
+      border-color: rgba(34,197,94,.45);
+    }
+    .msg{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      font-size:13px;
+      line-height:1.45;
+    }
+    .msg.good{border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.10)}
+    .msg.bad{border-color: rgba(239,68,68,.45); background: rgba(239,68,68,.10)}
+    .msg.warn{border-color: rgba(245,158,11,.45); background: rgba(245,158,11,.10)}
+    .big{
+      font-size:20px;
+      letter-spacing:.2px;
+    }
+    .math{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      font-size:18px;
+    }
+    .frac{
+      display:inline-flex;
+      flex-direction:column;
+      align-items:center;
+      min-width: 54px;
+      line-height:1.05;
+    }
+    .frac .top{font-weight:700}
+    .frac .line{width:100%;height:2px;background:rgba(255,255,255,.45);border-radius:99px;margin:2px 0}
+    .frac .bottom{font-weight:700}
+
+    .canvasBox{
+      padding:12px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    canvas{
+      background: rgba(0,0,0,.15);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+    }
+
+    .mini{
+      font-size:12px;color:var(--muted);
+      display:flex; gap:10px; flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .hidden{display:none !important}
+    .shake{
+      animation: shake .35s ease;
+    }
+    @keyframes shake{
+      0%{transform: translateX(0)}
+      25%{transform: translateX(6px)}
+      50%{transform: translateX(-6px)}
+      75%{transform: translateX(4px)}
+      100%{transform: translateX(0)}
+    }
+
+    .spark{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:.0;
+    }
+    .spark.show{
+      animation: pop .7s ease forwards;
+    }
+    @keyframes pop{
+      0%{opacity:0; transform: scale(.98)}
+      20%{opacity:1}
+      100%{opacity:0; transform: scale(1.02)}
+    }
+    .spark::before{
+      content:"";
+      position:absolute; inset:-20%;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(34,197,94,.25), transparent 35%),
+        radial-gradient(circle at 80% 30%, rgba(124,92,255,.22), transparent 38%),
+        radial-gradient(circle at 55% 80%, rgba(77,214,255,.18), transparent 40%);
+      filter: blur(2px);
+    }
+
+    .footerNote{
+      margin-top:14px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    .kbd{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      padding:2px 8px;
+      border-radius:10px;
+      font-size:12px;
+      color:var(--text);
+      display:inline-block;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="top">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <h1>שברים לכיתות ד-ה</h1>
+            <div class="sub">לומדים עם ציור, תרגול קצר, ומשוב מיידי</div>
+          </div>
+        </div>
+
+        <nav aria-label="ניווט">
+          <div class="tab active" data-view="view-visual">ציור שבר</div>
+          <div class="tab" data-view="view-equivalent">שווים</div>
+          <div class="tab" data-view="view-simplify">צמצום</div>
+          <div class="tab" data-view="view-addsub">חיבור וחיסור</div>
+          <div class="tab" data-view="view-quiz">חידון</div>
+        </nav>
+
+        <div class="right">
+          <div class="pill" title="מתעדכן לפי התשובות שלך">
+            <span>התקדמות</span>
+            <div class="bar" aria-label="התקדמות">
+              <div id="progressFill"></div>
+            </div>
+            <span id="progressText">0%</span>
+          </div>
+          <button class="secondary" id="resetBtn" title="מאפס ניקוד והתקדמות">איפוס</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="grid">
+      <div class="card" id="leftCard">
+        <div class="spark" id="spark"></div>
+        <div class="cardHeader">
+          <div>
+            <p class="cardTitle" id="sectionTitle">ציור שבר</p>
+            <div class="cardHint" id="sectionHint">
+              בחר מונה ומכנה. תראה את השבר בפיצה או במלבן.
+            </div>
+          </div>
+        </div>
+        <div class="cardBody">
+
+          <!-- VIEW: Visual -->
+          <div id="view-visual">
+            <div class="row">
+              <div>
+                <label>מונה</label><br/>
+                <input type="number" id="v_num" min="0" max="12" value="3" />
+              </div>
+              <div>
+                <label>מכנה</label><br/>
+                <input type="number" id="v_den" min="1" max="12" value="8" />
+              </div>
+              <div>
+                <label>צורה</label><br/>
+                <select id="v_shape">
+                  <option value="pie">פיצה</option>
+                  <option value="bar">מלבן</option>
+                </select>
+              </div>
+              <div style="display:flex;align-items:flex-end;gap:8px">
+                <button id="v_random">שבר אקראי</button>
+                <button class="secondary" id="v_compare">השווה ל־1/2</button>
+              </div>
+            </div>
+
+            <div class="canvasBox">
+              <canvas id="v_canvas" width="380" height="260"></canvas>
+              <div>
+                <div class="math big" id="v_readout"></div>
+                <div class="msg" id="v_msg">שנה מספרים ותראה מה קורה.</div>
+                <div class="mini">
+                  <span>טיפ: אם המונה גדול מהמכנה, קיבלת מספר גדול מ־1.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- VIEW: Equivalent -->
+          <div id="view-equivalent" class="hidden">
+            <div class="row">
+              <div>
+                <label>שבר בסיס</label><br/>
+                <input type="number" id="e_num" min="1" max="12" value="2" />
+              </div>
+              <div style="display:flex;align-items:flex-end;gap:8px">
+                <input type="number" id="e_den" min="1" max="12" value="3" />
+              </div>
+              <div>
+                <label>כפל ב־</label><br/>
+                <input type="range" id="e_mul" min="1" max="10" value="2" />
+                <div class="mini">ערך: <span id="e_mul_text" class="kbd">2</span></div>
+              </div>
+              <div style="display:flex;align-items:flex-end;gap:8px">
+                <button class="good" id="e_check">בדוק</button>
+                <button class="secondary" id="e_new">דוגמה חדשה</button>
+              </div>
+            </div>
+
+            <div class="canvasBox">
+              <canvas id="e_canvas" width="380" height="260"></canvas>
+              <div>
+                <div class="math big" id="e_readout"></div>
+                <div class="msg" id="e_msg">
+                  כשמכפילים מונה ומכנה באותו מספר, הערך לא משתנה.
+                </div>
+                <div class="mini">
+                  <span>דוגמה: 1/2 שווה ל־2/4.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- VIEW: Simplify -->
+          <div id="view-simplify" class="hidden">
+            <div class="row">
+              <div>
+                <label>מונה</label><br/>
+                <input type="number" id="s_num" min="1" max="99" value="12" />
+              </div>
+              <div>
+                <label>מכנה</label><br/>
+                <input type="number" id="s_den" min="1" max="99" value="18" />
+              </div>
+              <div style="display:flex;align-items:flex-end;gap:8px">
+                <button class="good" id="s_simplify">צמצם</button>
+                <button class="secondary" id="s_random">דוגמה אקראית</button>
+              </div>
+            </div>
+
+            <div class="msg" id="s_msg">לחץ "צמצם" כדי למצוא מחלק משותף גדול.</div>
+            <div class="math big" id="s_readout" style="margin-top:12px"></div>
+
+            <div class="footerNote">
+              איך בודקים: מחפשים מספר שמחלק גם את המונה וגם את המכנה בלי שארית.
+            </div>
+          </div>
+
+          <!-- VIEW: Add/Sub same denominator -->
+          <div id="view-addsub" class="hidden">
+            <div class="row">
+              <div>
+                <label>מונה 1</label><br/>
+                <input type="number" id="a_num1" min="0" max="20" value="1" />
+              </div>
+              <div>
+                <label>מונה 2</label><br/>
+                <input type="number" id="a_num2" min="0" max="20" value="3" />
+              </div>
+              <div>
+                <label>מכנה משותף</label><br/>
+                <input type="number" id="a_den" min="1" max="20" value="8" />
+              </div>
+              <div>
+                <label>פעולה</label><br/>
+                <select id="a_op">
+                  <option value="+">חיבור</option>
+                  <option value="-">חיסור</option>
+                </select>
+              </div>
+              <div style="display:flex;align-items:flex-end;gap:8px">
+                <button class="good" id="a_calc">חשב</button>
+                <button class="secondary" id="a_random">דוגמה אקראית</button>
+              </div>
+            </div>
+
+            <div class="canvasBox">
+              <canvas id="a_canvas" width="380" height="260"></canvas>
+              <div>
+                <div class="math big" id="a_readout"></div>
+                <div class="msg" id="a_msg">
+                  כששני השברים עם אותו מכנה, אתה מחבר או מחסר רק את המונים.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- VIEW: Quiz -->
+          <div id="view-quiz" class="hidden">
+            <div class="row">
+              <div>
+                <label>סוג שאלה</label><br/>
+                <select id="q_type">
+                  <option value="compare">השוואה</option>
+                  <option value="equivalent">שברים שווים</option>
+                  <option value="simplify">צמצום</option>
+                  <option value="addsame">חיבור עם מכנה משותף</option>
+                </select>
+              </div>
+              <div style="display:flex;align-items:flex-end;gap:8px">
+                <button id="q_new">שאלה חדשה</button>
+                <button class="secondary" id="q_hint">רמז</button>
+              </div>
+            </div>
+
+            <div class="msg" id="q_prompt"></div>
+
+            <div class="row" style="margin-top:10px;align-items:flex-end">
+              <div>
+                <label>התשובה שלך</label><br/>
+                <input type="text" id="q_answer" placeholder='דוגמה: 3/4 או ">" או 2/3' style="width:260px" />
+              </div>
+              <div style="display:flex;gap:8px;align-items:flex-end">
+                <button class="good" id="q_check">בדוק</button>
+                <button class="secondary" id="q_skip">דלג</button>
+              </div>
+            </div>
+
+            <div class="canvasBox">
+              <canvas id="q_canvas" width="380" height="260"></canvas>
+              <div>
+                <div class="math big" id="q_readout"></div>
+                <div class="msg" id="q_msg">ענה ואז לחץ "בדוק".</div>
+              </div>
+            </div>
+
+            <div class="footerNote">
+              קיצורי מקלדת: <span class="kbd">Enter</span> לבדיקה, <span class="kbd">N</span> לשאלה חדשה.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card" id="sideCard">
+        <div class="cardHeader">
+          <div>
+            <p class="cardTitle">מדריך קצר</p>
+            <div class="cardHint">בחר נושא. תרגל 3 דקות. בדוק את עצמך.</div>
+          </div>
+        </div>
+        <div class="cardBody">
+          <div class="msg">
+            1. מונה אומר כמה חלקים צבעת.<br/>
+            2. מכנה אומר לכמה חלקים חילקת.<br/>
+            3. שבר גדול מ־1 כשמונה גדול ממכנה.
+          </div>
+
+          <div class="msg">
+            שברים שווים: אתה מכפיל או מחלק מונה ומכנה באותו מספר.
+          </div>
+
+          <div class="msg">
+            חיבור וחיסור: כשיש אותו מכנה, אתה משנה רק את המונה.
+          </div>
+
+          <div class="msg warn" id="teacherBox">
+            מורה: תן לתלמיד לבחור שבר, לצייר, ואז להסביר בקול מה המונה ומה המכנה.
+          </div>
+
+          <div class="footerNote">
+            איך מריצים: שמור כקובץ <span class="kbd">index.html</span> ופתח בדפדפן.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // מצב
+    const state = {
+      correct: 0,
+      total: 0,
+      view: "view-visual",
+      quiz: null,
+    };
+
+    // עזרי DOM
+    const $ = (id) => document.getElementById(id);
+    const tabs = Array.from(document.querySelectorAll(".tab"));
+
+    function setProgress(){
+      const pct = state.total === 0 ? 0 : Math.round((state.correct / state.total) * 100);
+      $("progressFill").style.width = pct + "%";
+      $("progressText").textContent = pct + "%";
+    }
+
+    function celebrate(){
+      const s = $("spark");
+      s.classList.remove("show");
+      void s.offsetWidth;
+      s.classList.add("show");
+    }
+
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+    function gcd(a,b){
+      a = Math.abs(a); b = Math.abs(b);
+      while(b){ [a,b] = [b, a % b]; }
+      return a || 1;
+    }
+
+    function simplifyFrac(n, d){
+      if(d === 0) return {n, d};
+      if(d < 0){ n = -n; d = -d; }
+      const g = gcd(n,d);
+      return { n: n/g, d: d/g, g };
+    }
+
+    function fracToFloat(n,d){ return d === 0 ? Infinity : n/d; }
+
+    function parseFracText(text){
+      const t = (text || "").trim().replace(/\s+/g,"");
+      if(!t) return null;
+      if(t.includes("/")){
+        const [a,b] = t.split("/");
+        const n = Number(a), d = Number(b);
+        if(!Number.isFinite(n) || !Number.isFinite(d) || d === 0) return null;
+        return simplifyFrac(n,d);
+      }
+      if(t === ">" || t === "<" || t === "=") return { op: t };
+      return null;
+    }
+
+    function fracHTML(n,d){
+      return `
+        <span class="frac" aria-label="${n} חלקי ${d}">
+          <span class="top">${n}</span>
+          <span class="line"></span>
+          <span class="bottom">${d}</span>
+        </span>
+      `;
+    }
+
+    // ציור
+    function drawPie(ctx, cx, cy, r, n, d){
+      ctx.clearRect(0,0,ctx.canvas.width, ctx.canvas.height);
+
+      ctx.save();
+      ctx.translate(cx,cy);
+
+      // בסיס
+      ctx.beginPath();
+      ctx.arc(0,0,r,0,Math.PI*2);
+      ctx.fillStyle = "rgba(255,255,255,.08)";
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(255,255,255,.18)";
+      ctx.stroke();
+
+      const filled = clamp(n, 0, d);
+      const step = (Math.PI*2)/d;
+
+      // פרוסות מלאות
+      for(let i=0;i<filled;i++){
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.arc(0,0,r, -Math.PI/2 + i*step, -Math.PI/2 + (i+1)*step);
+        ctx.closePath();
+        ctx.fillStyle = "rgba(124,92,255,.55)";
+        ctx.fill();
+      }
+
+      // קווי חלוקה
+      for(let i=0;i<d;i++){
+        const a = -Math.PI/2 + i*step;
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.lineTo(Math.cos(a)*r, Math.sin(a)*r);
+        ctx.strokeStyle = "rgba(255,255,255,.18)";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      // טבעת
+      ctx.beginPath();
+      ctx.arc(0,0,r,0,Math.PI*2);
+      ctx.strokeStyle = "rgba(255,255,255,.22)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawBar(ctx, x, y, w, h, n, d){
+      ctx.clearRect(0,0,ctx.canvas.width, ctx.canvas.height);
+
+      // מסגרת
+      ctx.fillStyle = "rgba(255,255,255,.06)";
+      roundRect(ctx, x, y, w, h, 18, true, false);
+
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(255,255,255,.18)";
+      roundRect(ctx, x, y, w, h, 18, false, true);
+
+      const parts = d;
+      const filled = clamp(n,0,d);
+
+      // חלקים
+      const partW = w / parts;
+      for(let i=0;i<parts;i++){
+        const px = x + i*partW;
+        if(i < filled){
+          ctx.fillStyle = "rgba(34,197,94,.38)";
+          roundRect(ctx, px+2, y+2, partW-4, h-4, 12, true, false);
+        }
+        // קו חלוקה
+        if(i>0){
+          ctx.beginPath();
+          ctx.moveTo(px, y+6);
+          ctx.lineTo(px, y+h-6);
+          ctx.strokeStyle = "rgba(255,255,255,.16)";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      }
+    }
+
+    function roundRect(ctx, x, y, w, h, r, fill, stroke){
+      const rr = Math.min(r, w/2, h/2);
+      ctx.beginPath();
+      ctx.moveTo(x+rr, y);
+      ctx.arcTo(x+w, y, x+w, y+h, rr);
+      ctx.arcTo(x+w, y+h, x, y+h, rr);
+      ctx.arcTo(x, y+h, x, y, rr);
+      ctx.arcTo(x, y, x+w, y, rr);
+      ctx.closePath();
+      if(fill) ctx.fill();
+      if(stroke) ctx.stroke();
+    }
+
+    function drawFractionVisual(canvasId, shape, n, d){
+      const c = $(canvasId);
+      const ctx = c.getContext("2d");
+      d = clamp(d,1,24);
+
+      if(shape === "pie"){
+        const cx = c.width/2, cy = c.height/2, r = 92;
+        drawPie(ctx, cx, cy, r, n, d);
+      }else{
+        drawBar(ctx, 40, 90, c.width-80, 80, n, d);
+      }
+
+      // טקסט
+      ctx.fillStyle = "rgba(255,255,255,.85)";
+      ctx.font = "600 16px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(`${n}/${d}`, c.width/2, 34);
+    }
+
+    // ניווט
+    function showView(viewId){
+      state.view = viewId;
+
+      tabs.forEach(t => t.classList.toggle("active", t.dataset.view === viewId));
+      ["view-visual","view-equivalent","view-simplify","view-addsub","view-quiz"].forEach(id=>{
+        $(id).classList.toggle("hidden", id !== viewId);
+      });
+
+      const meta = {
+        "view-visual": ["ציור שבר", "בחר מונה ומכנה. תראה את השבר בפיצה או במלבן."],
+        "view-equivalent": ["שברים שווים", "כפל מונה ומכנה באותו מספר. הערך נשאר אותו דבר."],
+        "view-simplify": ["צמצום שבר", "מצא מחלק משותף גדול. כתוב שבר קטן ושווה."],
+        "view-addsub": ["חיבור וחיסור עם אותו מכנה", "שנה רק את המונים. המכנה נשאר."],
+        "view-quiz": ["חידון", "ענה מהר. תקבל משוב מיידי וניקוד."]
+      };
+
+      $("sectionTitle").textContent = meta[viewId][0];
+      $("sectionHint").textContent = meta[viewId][1];
+
+      // רענון ציורים
+      if(viewId === "view-visual") updateVisual();
+      if(viewId === "view-equivalent") updateEquivalent();
+      if(viewId === "view-addsub") updateAddSub();
+      if(viewId === "view-quiz") renderQuizCanvas();
+    }
+
+    tabs.forEach(t => t.addEventListener("click", ()=> showView(t.dataset.view)));
+
+    // --- VIEW: Visual
+    function updateVisual(){
+      let n = Number($("v_num").value);
+      let d = Number($("v_den").value);
+      n = clamp(n,0,99);
+      d = clamp(d,1,24);
+      $("v_num").value = n;
+      $("v_den").value = d;
+
+      const shape = $("v_shape").value;
+      drawFractionVisual("v_canvas", shape, n, d);
+
+      const simp = simplifyFrac(n,d);
+      const val = fracToFloat(n,d);
+      $("v_readout").innerHTML = `${fracHTML(n,d)} <span style="color:var(--muted)">=</span> ${fracHTML(simp.n, simp.d)}`;
+
+      let msg = "שנה מספרים ותראה מה קורה.";
+      let cls = "msg";
+      if(n === 0){ msg = "זה שבר אפס. לא צבעת כלום."; cls = "msg warn"; }
+      else if(n === d){ msg = "זה שווה ל־1. צבעת את הכל."; cls = "msg good"; }
+      else if(n > d){ msg = "זה גדול מ־1. יש לך יותר מיחידה אחת."; cls = "msg warn"; }
+      else if(val < 0.5){ msg = "זה קטן מחצי."; cls = "msg"; }
+      else if(val > 0.5){ msg = "זה גדול מחצי."; cls = "msg"; }
+      else{ msg = "זה בדיוק חצי."; cls = "msg good"; }
+
+      $("v_msg").className = cls;
+      $("v_msg").textContent = msg;
+    }
+
+    $("v_num").addEventListener("input", updateVisual);
+    $("v_den").addEventListener("input", updateVisual);
+    $("v_shape").addEventListener("change", updateVisual);
+
+    $("v_random").addEventListener("click", ()=>{
+      const d = Math.floor(Math.random()*10)+2;
+      const n = Math.floor(Math.random()*(d+1));
+      $("v_den").value = d;
+      $("v_num").value = n;
+      updateVisual();
+    });
+
+    $("v_compare").addEventListener("click", ()=>{
+      const n = Number($("v_num").value);
+      const d = Number($("v_den").value);
+      const v = n/d;
+      const msgEl = $("v_msg");
+      if(v > 0.5){ msgEl.className = "msg good"; msgEl.textContent = "השבר גדול מ־1/2."; }
+      else if(v < 0.5){ msgEl.className = "msg warn"; msgEl.textContent = "השבר קטן מ־1/2."; }
+      else{ msgEl.className = "msg good"; msgEl.textContent = "השבר שווה ל־1/2."; }
+    });
+
+    // --- VIEW: Equivalent
+    function updateEquivalent(){
+      let n = clamp(Number($("e_num").value),1,24);
+      let d = clamp(Number($("e_den").value),1,24);
+      if(n > d){ n = clamp(n,1,d); }
+      $("e_num").value = n;
+      $("e_den").value = d;
+
+      const m = Number($("e_mul").value);
+      $("e_mul_text").textContent = String(m);
+
+      const n2 = n*m, d2 = d*m;
+
+      $("e_readout").innerHTML = `${fracHTML(n,d)} <span style="color:var(--muted)">=</span> ${fracHTML(n2,d2)}`;
+
+      drawFractionVisual("e_canvas", "bar", n, d);
+    }
+
+    $("e_num").addEventListener("input", updateEquivalent);
+    $("e_den").addEventListener("input", updateEquivalent);
+    $("e_mul").addEventListener("input", updateEquivalent);
+
+    $("e_check").addEventListener("click", ()=>{
+      state.total++;
+      state.correct++;
+      setProgress();
+      celebrate();
+      $("e_msg").className = "msg good";
+      $("e_msg").textContent = "נכון. כפל מונה ומכנה באותו מספר יוצר שבר שווה.";
+    });
+
+    $("e_new").addEventListener("click", ()=>{
+      const d = Math.floor(Math.random()*10)+2;
+      const n = Math.floor(Math.random()*(d-1))+1;
+      const m = Math.floor(Math.random()*6)+2;
+      $("e_den").value = d;
+      $("e_num").value = n;
+      $("e_mul").value = m;
+      updateEquivalent();
+      $("e_msg").className = "msg";
+      $("e_msg").textContent = "כפל מונה ומכנה באותו מספר. הערך נשאר אותו דבר.";
+    });
+
+    // --- VIEW: Simplify
+    function updateSimplifyReadout(text, cls){
+      $("s_readout").innerHTML = text || "";
+      $("s_msg").className = cls || "msg";
+    }
+
+    $("s_simplify").addEventListener("click", ()=>{
+      let n = clamp(Number($("s_num").value),1,999);
+      let d = clamp(Number($("s_den").value),1,999);
+      $("s_num").value = n;
+      $("s_den").value = d;
+
+      const s = simplifyFrac(n,d);
+      const changed = (s.n !== n || s.d !== d);
+
+      if(!changed){
+        updateSimplifyReadout(
+          `${fracHTML(n,d)} <span style="color:var(--muted)">כבר מצומצם</span>`,
+          "msg good"
+        );
+        return;
+      }
+
+      updateSimplifyReadout(
+        `${fracHTML(n,d)} <span style="color:var(--muted)">חילקת ב־</span> <span class="kbd">${s.g}</span> <span style="color:var(--muted)">וקיבלת</span> ${fracHTML(s.n, s.d)}`,
+        "msg good"
+      );
+      celebrate();
+    });
+
+    $("s_random").addEventListener("click", ()=>{
+      const baseD = Math.floor(Math.random()*9)+2;
+      const baseN = Math.floor(Math.random()*(baseD-1))+1;
+      const k = Math.floor(Math.random()*7)+2;
+      $("s_num").value = baseN*k;
+      $("s_den").value = baseD*k;
+      updateSimplifyReadout("לחץ \"צמצם\" כדי למצוא מחלק משותף גדול.", "msg");
+      $("s_readout").innerHTML = "";
+    });
+
+    // --- VIEW: Add/Sub
+    function updateAddSub(){
+      let n1 = clamp(Number($("a_num1").value),0,99);
+      let n2 = clamp(Number($("a_num2").value),0,99);
+      let d = clamp(Number($("a_den").value),1,24);
+      $("a_num1").value = n1;
+      $("a_num2").value = n2;
+      $("a_den").value = d;
+
+      drawFractionVisual("a_canvas", "bar", n1, d);
+
+      $("a_readout").innerHTML = `${fracHTML(n1,d)} <span style="color:var(--muted)">${$("a_op").value}</span> ${fracHTML(n2,d)}`;
+    }
+
+    function calcAddSub(){
+      let n1 = clamp(Number($("a_num1").value),0,99);
+      let n2 = clamp(Number($("a_num2").value),0,99);
+      let d = clamp(Number($("a_den").value),1,24);
+      const op = $("a_op").value;
+
+      const resN = op === "+" ? n1+n2 : n1-n2;
+      const simp = simplifyFrac(resN, d);
+
+      $("a_msg").className = "msg good";
+      $("a_msg").innerHTML = `התוצאה: ${fracHTML(resN,d)} <span style="color:var(--muted)">=</span> ${fracHTML(simp.n, simp.d)}`;
+      celebrate();
+    }
+
+    $("a_num1").addEventListener("input", updateAddSub);
+    $("a_num2").addEventListener("input", updateAddSub);
+    $("a_den").addEventListener("input", updateAddSub);
+    $("a_op").addEventListener("change", updateAddSub);
+    $("a_calc").addEventListener("click", calcAddSub);
+
+    $("a_random").addEventListener("click", ()=>{
+      const d = Math.floor(Math.random()*10)+2;
+      const n1 = Math.floor(Math.random()*d);
+      const n2 = Math.floor(Math.random()*d);
+      const op = Math.random() < 0.5 ? "+" : "-";
+      $("a_den").value = d;
+      $("a_num1").value = n1;
+      $("a_num2").value = n2;
+      $("a_op").value = op;
+      updateAddSub();
+      $("a_msg").className = "msg";
+      $("a_msg").textContent = "כשיש אותו מכנה, אתה מחבר או מחסר רק את המונים.";
+    });
+
+    // --- VIEW: Quiz
+    function newQuiz(){
+      const type = $("q_type").value;
+
+      function randFrac(maxD=12){
+        const d = Math.floor(Math.random()*(maxD-2))+3;
+        const n = Math.floor(Math.random()*(d-1))+1;
+        return simplifyFrac(n,d);
+      }
+
+      let q = { type };
+
+      if(type === "compare"){
+        const a = randFrac();
+        const b = randFrac();
+        q.a = a; q.b = b;
+        const va = fracToFloat(a.n,a.d), vb = fracToFloat(b.n,b.d);
+        q.answer = va > vb ? ">" : (va < vb ? "<" : "=");
+        $("q_prompt").innerHTML =
+          `השווה בין השברים. כתוב רק <span class="kbd">&gt;</span> או <span class="kbd">&lt;</span> או <span class="kbd">=</span><br/>
+          ${fracHTML(a.n,a.d)} <span style="color:var(--muted)"> ? </span> ${fracHTML(b.n,b.d)}`;
+      }
+
+      if(type === "equivalent"){
+        const a = randFrac();
+        const m = Math.floor(Math.random()*6)+2;
+        const b = simplifyFrac(a.n*m, a.d*m);
+        q.a = a; q.m = m; q.b = b;
+        q.answer = `${b.n}/${b.d}`;
+        $("q_prompt").innerHTML =
+          `כתוב שבר שווה לשבר הבא, אחרי כפל ב־<span class="kbd">${m}</span><br/>
+          ${fracHTML(a.n,a.d)} <span style="color:var(--muted)">=</span> ?`;
+      }
+
+      if(type === "simplify"){
+        const base = randFrac();
+        const k = Math.floor(Math.random()*8)+2;
+        const n = base.n*k, d = base.d*k;
+        const s = simplifyFrac(n,d);
+        q.n = n; q.d = d;
+        q.answer = `${s.n}/${s.d}`;
+        $("q_prompt").innerHTML =
+          `צמצם את השבר. כתוב תשובה בצורה <span class="kbd">מונה/מכנה</span><br/>
+          ${fracHTML(n,d)}`;
+      }
+
+      if(type === "addsame"){
+        const d = Math.floor(Math.random()*10)+2;
+        const n1 = Math.floor(Math.random()*d);
+        const n2 = Math.floor(Math.random()*d);
+        q.n1 = n1; q.n2 = n2; q.d = d;
+        const r = simplifyFrac(n1+n2, d);
+        q.answer = `${r.n}/${r.d}`;
+        $("q_prompt").innerHTML =
+          `חשב. כתוב תשובה בצורה <span class="kbd">מונה/מכנה</span><br/>
+          ${fracHTML(n1,d)} <span style="color:var(--muted)">+</span> ${fracHTML(n2,d)}`;
+      }
+
+      state.quiz = q;
+      $("q_answer").value = "";
+      $("q_msg").className = "msg";
+      $("q_msg").textContent = "ענה ואז לחץ \"בדוק\".";
+      $("q_readout").innerHTML = "";
+      renderQuizCanvas();
+    }
+
+    function renderQuizCanvas(){
+      const q = state.quiz;
+      const c = $("q_canvas");
+      const ctx = c.getContext("2d");
+      ctx.clearRect(0,0,c.width,c.height);
+
+      if(!q){
+        ctx.fillStyle = "rgba(255,255,255,.7)";
+        ctx.font = "600 14px system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("לחץ \"שאלה חדשה\"", c.width/2, c.height/2);
+        return;
+      }
+
+      if(q.type === "compare"){
+        drawFractionVisual("q_canvas","pie", q.a.n, q.a.d);
+        // מציירים גם שבר שני קטן בפינה
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = "rgba(0,0,0,.25)";
+        roundRect(ctx, 240, 150, 120, 90, 14, true, false);
+        ctx.save();
+        ctx.translate(300, 195);
+        drawMiniPie(ctx, 0,0, 34, q.b.n, q.b.d);
+        ctx.restore();
+        ctx.fillStyle = "rgba(255,255,255,.8)";
+        ctx.font = "600 12px system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(`${q.b.n}/${q.b.d}`, 300, 232);
+      }
+
+      if(q.type === "equivalent"){
+        drawFractionVisual("q_canvas","bar", q.a.n, q.a.d);
+      }
+
+      if(q.type === "simplify"){
+        drawFractionVisual("q_canvas","bar", q.n, q.d);
+      }
+
+      if(q.type === "addsame"){
+        drawFractionVisual("q_canvas","bar", q.n1, q.d);
+      }
+    }
+
+    function drawMiniPie(ctx, cx, cy, r, n, d){
+      ctx.save();
+      ctx.translate(cx,cy);
+
+      ctx.beginPath();
+      ctx.arc(0,0,r,0,Math.PI*2);
+      ctx.fillStyle = "rgba(255,255,255,.08)";
+      ctx.fill();
+
+      const filled = clamp(n,0,d);
+      const step = (Math.PI*2)/d;
+
+      for(let i=0;i<filled;i++){
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.arc(0,0,r, -Math.PI/2 + i*step, -Math.PI/2 + (i+1)*step);
+        ctx.closePath();
+        ctx.fillStyle = "rgba(34,197,94,.55)";
+        ctx.fill();
+      }
+
+      for(let i=0;i<d;i++){
+        const a = -Math.PI/2 + i*step;
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.lineTo(Math.cos(a)*r, Math.sin(a)*r);
+        ctx.strokeStyle = "rgba(255,255,255,.18)";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      ctx.beginPath();
+      ctx.arc(0,0,r,0,Math.PI*2);
+      ctx.strokeStyle = "rgba(255,255,255,.22)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function quizHint(){
+      const q = state.quiz;
+      if(!q) return;
+      const msg = $("q_msg");
+
+      if(q.type === "compare"){
+        msg.className = "msg warn";
+        msg.textContent = "הפוך לשברים עם אותו מכנה, או השווה לפי ציור. גדול יותר אומר שצבעת יותר.";
+      }
+      if(q.type === "equivalent"){
+        msg.className = "msg warn";
+        msg.textContent = "כפל מונה ומכנה באותו מספר. כתוב את השבר החדש.";
+      }
+      if(q.type === "simplify"){
+        msg.className = "msg warn";
+        msg.textContent = "חפש מחלק משותף גדול. נסה 2, 3, 5, ואז מספרים אחרים.";
+      }
+      if(q.type === "addsame"){
+        msg.className = "msg warn";
+        msg.textContent = "חבר רק את המונים. המכנה נשאר אותו מספר.";
+      }
+    }
+
+    function quizCheck(){
+      const q = state.quiz;
+      if(!q) return;
+
+      const raw = $("q_answer").value;
+      const parsed = parseFracText(raw);
+
+      state.total++;
+
+      // השוואה
+      if(q.type === "compare"){
+        const op = parsed && parsed.op;
+        if(op && op === q.answer){
+          state.correct++;
+          $("q_msg").className = "msg good";
+          $("q_msg").textContent = "נכון.";
+          $("q_readout").innerHTML = `התשובה: <span class="kbd">${q.answer}</span>`;
+          celebrate();
+        }else{
+          $("q_msg").className = "msg bad";
+          $("q_msg").textContent = `לא. התשובה היא ${q.answer}.`;
+          $("q_readout").innerHTML = `פתרון: ${fracHTML(q.a.n,q.a.d)} <span style="color:var(--muted)">${q.answer}</span> ${fracHTML(q.b.n,q.b.d)}`;
+          $("leftCard").classList.remove("shake");
+          void $("leftCard").offsetWidth;
+          $("leftCard").classList.add("shake");
+        }
+        setProgress();
+        return;
+      }
+
+      // שברים בצורה n/d
+      const ans = (parsed && typeof parsed.n === "number") ? `${parsed.n}/${parsed.d}` : null;
+
+      if(ans && ans === q.answer){
+        state.correct++;
+        $("q_msg").className = "msg good";
+        $("q_msg").textContent = "נכון.";
+        $("q_readout").innerHTML = `התשובה: ${fracHTML(parsed.n, parsed.d)}`;
+        celebrate();
+      }else{
+        $("q_msg").className = "msg bad";
+        $("q_msg").textContent = `לא. התשובה היא ${q.answer}.`;
+        $("q_readout").innerHTML = `תשובה נכונה: ${q.answer.split("/").map(Number).length===2 ? fracHTML(q.answer.split("/")[0], q.answer.split("/")[1]) : `<span class="kbd">${q.answer}</span>`}`;
+        $("leftCard").classList.remove("shake");
+        void $("leftCard").offsetWidth;
+        $("leftCard").classList.add("shake");
+      }
+
+      setProgress();
+    }
+
+    $("q_new").addEventListener("click", newQuiz);
+    $("q_hint").addEventListener("click", quizHint);
+    $("q_check").addEventListener("click", quizCheck);
+    $("q_skip").addEventListener("click", ()=>{
+      state.total++;
+      setProgress();
+      newQuiz();
+    });
+
+    $("q_answer").addEventListener("keydown", (e)=>{
+      if(e.key === "Enter") quizCheck();
+    });
+    document.addEventListener("keydown", (e)=>{
+      if(state.view !== "view-quiz") return;
+      if(e.key.toLowerCase() === "n") newQuiz();
+    });
+
+    // איפוס
+    $("resetBtn").addEventListener("click", ()=>{
+      state.correct = 0;
+      state.total = 0;
+      setProgress();
+      $("q_msg").className = "msg";
+      $("q_msg").textContent = "ענה ואז לחץ \"בדוק\".";
+      $("teacherBox").className = "msg warn";
+      $("teacherBox").textContent = "מורה: תן לתלמיד לבחור שבר, לצייר, ואז להסביר בקול מה המונה ומה המכנה.";
+    });
+
+    // אתחול
+    function init(){
+      updateVisual();
+      updateEquivalent();
+      updateAddSub();
+      setProgress();
+      newQuiz();
+    }
+    init();
+
+    // הגבלות קלט קטנות
+    ["v_num","v_den","e_num","e_den","s_num","s_den","a_num1","a_num2","a_den"].forEach(id=>{
+      $(id).addEventListener("blur", ()=>{
+        const el = $(id);
+        const min = Number(el.min || 0);
+        const max = Number(el.max || 9999);
+        let v = Number(el.value);
+        if(!Number.isFinite(v)) v = min;
+        el.value = clamp(v, min, max);
+        if(state.view === "view-visual") updateVisual();
+        if(state.view === "view-equivalent") updateEquivalent();
+        if(state.view === "view-addsub") updateAddSub();
+      });
+    });
+  </script>
+</body>
+</html>
